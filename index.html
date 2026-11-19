@@ -19,7 +19,7 @@
     --glass-border: rgba(0,230,160,0.15);
   }
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; overflow-x: clip; }
   body {
     background: var(--bg);
     color: var(--white);
@@ -67,6 +67,7 @@
     position: fixed; border-radius: 50%;
     pointer-events: none; z-index: 9998;
     transform: translate(-50%,-50%);
+    opacity: 0;
   }
   .cursor { width: 8px; height: 8px; background: var(--neon); box-shadow: 0 0 10px var(--neon); }
   .cursor-follower {
@@ -114,12 +115,57 @@
   .music-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon); animation: blink 1.2s ease-in-out infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
+  /* MOBILE NAV */
+  .nav-toggle {
+    display: none;
+    width: 44px; height: 44px; flex-shrink: 0;
+    align-items: center; justify-content: center;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 12px; color: var(--neon);
+    font-size: 1.05rem; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-toggle:hover { border-color: var(--neon); box-shadow: 0 0 16px rgba(0,230,160,0.2); }
+  .nav-mobile {
+    position: absolute; top: 100%; left: 0; right: 0;
+    display: flex; flex-direction: column;
+    padding: 8px 24px 24px;
+    background: linear-gradient(180deg, #050a07 0%, #071009 100%);
+    border-bottom: 1px solid rgba(0,230,160,0.12);
+    box-shadow: 0 24px 40px rgba(0,0,0,0.5);
+    height: calc(100vh - 72px);
+    height: calc(100svh - 72px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform: translateY(-12px); opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  }
+  .nav-mobile.open { transform: translateY(0); opacity: 1; visibility: visible; }
+  .nav-mobile a {
+    padding: 15px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    color: var(--silver); text-decoration: none;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: color 0.3s, padding-left 0.3s;
+  }
+  .nav-mobile a::after { content: '›'; color: var(--neon); opacity: 0.6; }
+  .nav-mobile a:hover { color: var(--neon); padding-left: 12px; }
+  .nav-mobile .nav-mobile-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 18px; padding: 9px 18px; width: fit-content;
+    background: rgba(0,230,160,0.06); border: 1px solid rgba(0,230,160,0.2);
+    border-radius: 40px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--neon); letter-spacing: 0.12em;
+  }
+
   /* SECTIONS */
   section { position: relative; z-index: 1; }
 
   /* HERO */
   #hero {
-    min-height: 100vh; display: flex; align-items: center;
+    min-height: 100vh; min-height: 100svh; display: flex; align-items: center;
     padding: 120px 60px 60px; overflow: hidden;
   }
   .hero-inner {
@@ -572,23 +618,88 @@
 
   /* RESPONSIVE */
   @media(max-width:1024px){
-    .hero-inner { grid-template-columns: 1fr; }
-    .hero-right { display: none; }
-    .about-grid { grid-template-columns: 1fr; }
+    nav { padding: 16px 24px; }
+    #hero { padding: 110px clamp(20px,4vw,36px) 60px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+    .hero-right { display: flex; height: 390px; }
+    .avatar-container { transform: scale(.66); transform-origin: center; margin: -99px 0; }
+    .about-grid { grid-template-columns: 1fr; gap: 56px; }
     .projects-grid { grid-template-columns: repeat(2,1fr); }
-    .skills-3d-wrap { grid-template-columns: repeat(4,1fr); }
-    .contact-grid { grid-template-columns: 1fr; }
+    .skills-3d-wrap { grid-template-columns: repeat(4,1fr); gap: 16px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 56px; }
     .edu-grid { grid-template-columns: 1fr; }
-    nav { padding: 16px 30px; }
-    .section-wrap { padding: 80px 30px; }
+    .section-wrap { padding: clamp(64px,9vw,100px) clamp(20px,4vw,36px); }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; padding: 60px clamp(20px,4vw,36px) 44px; }
+    .footer-bottom { padding: 24px clamp(20px,4vw,36px); }
+    .line-divider { margin: 0 clamp(20px,4vw,36px); }
+  }
+  @media(max-width:900px){
+    .skills-3d-wrap { grid-template-columns: repeat(3,1fr); }
+  }
+  @media(max-width:768px){
+    html { scroll-padding-top: 72px; }
+    nav { padding: 14px 18px; }
+    .nav-links { display: none; }
+    .nav-toggle { display: inline-flex; }
+    .nav-badge { display: none; }
+    .hero-right { height: 370px; }
+    .avatar-container { transform: scale(.62); margin: -110px 0; }
+    .hero-title { font-size: clamp(2.4rem, 8vw, 3.6rem); }
+    #ht3 { letter-spacing: 0.1em !important; }
+    .hero-desc { font-size: 0.98rem; }
+    .section-title { font-size: clamp(1.8rem, 6.5vw, 2.6rem); }
+    .section-sub { margin-bottom: 40px; }
+    .skills-3d-wrap { margin-top: 40px; gap: 14px; }
+    .scroll-indicator { display: none; }
+    .ticker-item { font-size: 0.95rem; gap: 14px; }
+    .ticker-track { gap: 40px; }
+    .footer-top { gap: 32px; }
   }
   @media(max-width:640px){
+    .hero-right { display: none; }
+    #hero { padding: 96px 18px 48px; }
+    .section-wrap { padding: 64px 18px; }
+    .line-divider { margin: 0 18px; }
     .projects-grid { grid-template-columns: 1fr; }
-    .skills-3d-wrap { grid-template-columns: repeat(3,1fr); }
-    .nav-links { display: none; }
     .form-row { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 16px; text-align: center; }
-    .stats-row { gap: 20px; }
+    .stats-row { gap: 24px; flex-wrap: wrap; }
+    .exp-timeline { padding-left: 24px; }
+    .exp-dot { left: -32px; }
+    .hero-btns { width: 100%; }
+    .btn-primary, .btn-secondary { flex: 1 1 100%; justify-content: center; }
+    .contact-detail-text p, .contact-detail-text a { word-break: break-word; }
+    .form-group input, .form-group textarea { font-size: 16px; }
+    .project-body { padding: 20px; }
+    .footer-top { grid-template-columns: 1fr; padding: 50px 20px 36px; }
+    .footer-bottom { flex-direction: column; align-items: center; text-align: center; padding: 24px 20px; }
+  }
+  @media(max-width:480px){
+    .hero-title { font-size: clamp(2rem, 10.5vw, 2.6rem); }
+    #ht3 { font-size: 0.4em !important; letter-spacing: 0.08em !important; }
+    .skills-3d-wrap { grid-template-columns: repeat(2,1fr); gap: 12px; }
+    .skill-sphere i { font-size: 1.5rem; }
+    .stats-row { justify-content: space-between; }
+    .stat-num { font-size: 1.8rem; }
+    .section-tag { font-size: 0.62rem; }
+    .avatar-badge { display: none; }
+    .loader-logo { font-size: 2.2rem; }
+    .loader-bar-wrap { width: 220px; }
+  }
+  @media(max-width:380px){
+    .nav-logo { font-size: 1.05rem; letter-spacing: 0.18em; }
+    .hero-title { font-size: 1.9rem; }
+    #ht3 { font-size: 0.45em !important; }
+    .hero-tag { font-size: 0.62rem; letter-spacing: 0.08em; padding: 7px 14px; }
+    .skills-3d-wrap { gap: 10px; }
+    .btn-primary, .btn-secondary { padding: 12px 22px; font-size: 0.85rem; }
+    .footer-stack { font-size: 0.6rem; }
+  }
+  @media (hover:none), (pointer:coarse){
+    .cursor, .cursor-follower { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    html { scroll-behavior: auto; }
   }
 </style>
 </head>
@@ -623,6 +734,18 @@
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-badge"><div class="music-dot"></div><span>OPEN TO WORK</span></div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMobile">
+    <i class="fas fa-bars" id="navToggleIcon"></i>
+  </button>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#skills">Skills</a>
+    <a href="#education">Education</a>
+    <a href="#contact">Contact</a>
+    <div class="nav-mobile-badge"><div class="music-dot"></div>OPEN TO WORK</div>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -635,7 +758,7 @@
       <h1 class="hero-title">
         <div class="line"><span id="ht1">ASWIN J</span></div>
         <div  style="margin-top: 20px;"></div>
-        <div class="line"><span id="ht3" style="font-size:0.48em;letter-spacing:0.14em;color:var(--silver);font-weight:500;">Full Stack Developer</span></div>
+        <div class="line"><span id="ht3" style="font-size:0.48em;letter-spacing:0.14em;color:var(--silver);font-weight:500;">FULL STACK DEVELOPER</span></div>
       </h1>
       <p class="hero-desc" id="heroDesc">
         Full-stack developer with experience in Python, Django, Node.js, Angular, and MySQL — building scalable web applications and RESTful APIs from Kanyakumari, India. Eager to take on new challenges and deliver impactful digital products.
@@ -1366,11 +1489,11 @@
       <h4>Contact</h4>
       <div class="footer-contact-item">
         <i class="fas fa-envelope"></i>
-        <a href="mailto:aswin10498@gmail.com">aswin10498@gmail.com</a>
+        <a href="mailto:aswin10498@gmail.com">aswin.j.developer@gmail.com</a>
       </div>
       <div class="footer-contact-item">
         <i class="fas fa-phone"></i>
-        <a href="tel:+9150889580">+91 50889580</a>
+        <a href="tel:+9150889580">+91 9150889580</a>
       </div>
       <div class="footer-contact-item">
         <i class="fas fa-map-marker-alt"></i>
@@ -1406,7 +1529,7 @@
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
 
-  const COUNT = 1600;
+  const COUNT = window.innerWidth < 768 ? 600 : 1600;
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(COUNT * 3);
   const col = new Float32Array(COUNT * 3);
@@ -1461,7 +1584,7 @@ function triggerHeroAnimations() {
   ['ht1','ht2','ht3'].forEach((id,i) => {
     setTimeout(()=>{
       const el = document.getElementById(id);
-      if(el) el.style.cssText='transition:transform 0.8s cubic-bezier(0.25,1,0.5,1);transform:translateY(0)';
+      if(el){ el.style.transition='transform 0.8s cubic-bezier(0.25,1,0.5,1)'; el.style.transform='translateY(0)'; }
     }, i*150+100);
   });
   setTimeout(()=>document.getElementById('heroDesc')?.classList.add('visible'), 500);
@@ -1471,17 +1594,38 @@ function triggerHeroAnimations() {
 
 document.querySelectorAll('.hero-title .line span').forEach(s => s.style.transform='translateY(100%)');
 
-// CURSOR
+// CURSOR (fine pointers only)
 (function(){
+  if (!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
   const cur = document.getElementById('cursor');
   const fol = document.getElementById('cursorFollower');
   let fx=0,fy=0,cx=0,cy=0;
-  document.addEventListener('mousemove', e=>{ cx=e.clientX; cy=e.clientY; cur.style.left=cx+'px'; cur.style.top=cy+'px'; });
+  document.addEventListener('mousemove', e=>{ cx=e.clientX; cy=e.clientY; cur.style.left=cx+'px'; cur.style.top=cy+'px'; cur.style.opacity='1'; fol.style.opacity='1'; });
   document.querySelectorAll('a,button,.project-card,.skill-sphere,.social-icon').forEach(el=>{
     el.addEventListener('mouseenter',()=>fol.classList.add('hover'));
     el.addEventListener('mouseleave',()=>fol.classList.remove('hover'));
   });
   (function af(){ fx+=(cx-fx)*0.12; fy+=(cy-fy)*0.12; fol.style.left=fx+'px'; fol.style.top=fy+'px'; requestAnimationFrame(af); })();
+})();
+
+// MOBILE NAV
+(function(){
+  const toggle = document.getElementById('navToggle');
+  const icon = document.getElementById('navToggleIcon');
+  const menu = document.getElementById('navMobile');
+  if (!toggle || !menu) return;
+  const setOpen = (open) => {
+    menu.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open);
+    icon.className = open ? 'fas fa-xmark' : 'fas fa-bars';
+  };
+  toggle.addEventListener('click', () => setOpen(!menu.classList.contains('open')));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+  window.addEventListener('resize', () => { if (window.innerWidth > 768) setOpen(false); });
+  document.addEventListener('click', (e) => {
+    if (!menu.classList.contains('open')) return;
+    if (!menu.contains(e.target) && !toggle.contains(e.target)) setOpen(false);
+  });
 })();
 
 // SCROLL REVEAL + SKILL BARS
