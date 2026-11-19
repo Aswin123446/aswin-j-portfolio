@@ -115,6 +115,42 @@
   .music-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon); animation: blink 1.2s ease-in-out infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
+  /* LIVE WATCHING */
+  .nav-watching {
+    display: flex; align-items: center; gap: 9px; flex-shrink: 0;
+    background: rgba(255,170,51,0.05);
+    border: 1px solid rgba(255,170,51,0.22);
+    border-radius: 40px; padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: #ffc977;
+    letter-spacing: 0.06em; white-space: nowrap;
+  }
+  .live-dot {
+    position: relative; width: 7px; height: 7px; flex-shrink: 0;
+    border-radius: 50%; background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+  }
+  .live-dot::after {
+    content: ''; position: absolute; inset: -4px;
+    border-radius: 50%; border: 1px solid rgba(0,230,160,0.5);
+    animation: live-ping 2s ease-out infinite;
+  }
+  @keyframes live-ping {
+    0% { transform: scale(.6); opacity: .9; }
+    70%,100% { transform: scale(1.9); opacity: 0; }
+  }
+  .watch-num {
+    display: inline-block; min-width: 1.7em; text-align: right;
+    color: var(--neon); font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .watch-num.tick { animation: watch-tick 0.45s ease; }
+  @keyframes watch-tick {
+    from { opacity: .15; transform: translateY(-5px); }
+    to { opacity: 1; transform: none; }
+  }
+  .watch-label { opacity: .85; letter-spacing: 0.14em; }
+
   /* MOBILE NAV */
   .nav-toggle {
     display: none;
@@ -617,6 +653,12 @@
   .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
   /* RESPONSIVE */
+  @media(max-width:1100px){ .nav-links { gap: 22px; } }
+  @media(max-width:1024px){
+    .nav-watching { padding: 8px 13px; }
+    .watch-label { display: none; }
+  }
+  @media(max-width:1000px){ .nav-badge { display: none; } }
   @media(max-width:1024px){
     nav { padding: 16px 24px; }
     #hero { padding: 110px clamp(20px,4vw,36px) 60px; }
@@ -734,6 +776,11 @@
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-badge"><div class="music-dot"></div><span>OPEN TO WORK</span></div>
+  <div class="nav-watching" id="navWatching" title="People viewing this portfolio right now">
+    <span class="live-dot"></span>
+    <span class="watch-num" id="watchCount">12</span>
+    <span class="watch-label">WATCHING</span>
+  </div>
   <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMobile">
     <i class="fas fa-bars" id="navToggleIcon"></i>
   </button>
@@ -1411,11 +1458,11 @@
         </div>
         <div class="contact-detail">
           <div class="contact-icon"><i class="fas fa-envelope"></i></div>
-          <div class="contact-detail-text"><h5>Email</h5><p><a href="mailto:aswin10498@gmail.com">aswin10498@gmail.com</a></p></div>
+          <div class="contact-detail-text"><h5>Email</h5><p><a href="mailto:aswin.j.developer@gmail.com">aswin.j.developer@gmail.com</a></p></div>
         </div>
         <div class="contact-detail">
           <div class="contact-icon"><i class="fas fa-phone"></i></div>
-          <div class="contact-detail-text"><h5>Phone</h5><p><a href="tel:+9150889580">+91 50889580</a></p></div>
+          <div class="contact-detail-text"><h5>Phone</h5><p><a href="tel:+919150889580">+91 9150889580</a></p></div>
         </div>
         <div class="contact-detail">
           <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
@@ -1453,8 +1500,8 @@
       <p class="footer-tagline">Full-stack software developer building scalable web applications from Kanyakumari, India — backend to frontend, API to UI.</p>
       <div class="footer-availability"><div class="dot"></div>OPEN TO WORK</div>
       <div class="footer-social-row">
-        <a href="mailto:aswin10498@gmail.com" class="footer-social" title="Email"><i class="fas fa-envelope"></i></a>
-        <a href="tel:+9150889580" class="footer-social" title="Phone"><i class="fas fa-phone"></i></a>
+        <a href="mailto:aswin.j.developer@gmail.com" class="footer-social" title="Email"><i class="fas fa-envelope"></i></a>
+        <a href="tel:+919150889580" class="footer-social" title="Phone"><i class="fas fa-phone"></i></a>
         <a href="#" class="footer-social" title="GitHub"><i class="fab fa-github"></i></a>
         <a href="#" class="footer-social" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
       </div>
@@ -1628,6 +1675,28 @@ document.querySelectorAll('.hero-title .line span').forEach(s => s.style.transfo
     if (!menu.classList.contains('open')) return;
     if (!menu.contains(e.target) && !toggle.contains(e.target)) setOpen(false);
   });
+})();
+
+// LIVE WATCHERS (simulated presence)
+(function(){
+  const el = document.getElementById('watchCount');
+  if (!el) return;
+  let n = 9 + Math.floor(Math.random() * 7);
+  el.textContent = n;
+  (function drift(){
+    setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        const r = Math.random();
+        const delta = r < 0.12 ? 3 : r < 0.55 ? 1 : r < 0.88 ? -1 : -2;
+        n = Math.max(4, Math.min(38, n + delta));
+        el.textContent = n;
+        el.classList.remove('tick');
+        void el.offsetWidth;
+        el.classList.add('tick');
+      }
+      drift();
+    }, 3200 + Math.random() * 3200);
+  })();
 })();
 
 // SCROLL REVEAL + SKILL BARS
